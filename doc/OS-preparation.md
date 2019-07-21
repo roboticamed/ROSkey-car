@@ -19,10 +19,19 @@ sudo reboot
 sudo apt update
 sudo apt upgrade
 ```
+* Enable the Raspberry camera
+```
+sudo raspi-config
+
+# Navigate to "3 Interfacing Options" -> "P1 Camera" and enable the camera
+# Navitate to "5 Advanced Options" -> "A3 Memory Split" and set the GPU memory to 256.
+# Once finished, the config app will ask for reboot the system.
+```
 * Install some base packages
 ```
 sudo apt install -y \
-    tmux
+    tmux \
+    ros-kinetic-image-view
 ```
 * Fix the locale of the system:
 ```
