@@ -42,7 +42,10 @@ sudo update-locale LANG=en_US.UTF-8
 * Python 2 packages
 ```
 sudo pip2 install --upgrade pip
-sudo pip2 install jupyterlab
+sudo pip2 install --ugrade \
+    jupyterlab \
+    matplotlib \
+    adafruit-pca9685
 ```
 * Configure JupyterLab
 ```
