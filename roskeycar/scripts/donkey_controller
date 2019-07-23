@@ -52,12 +52,25 @@ class PWMController(object):
         ----------
         value : float
         """
-        print('sendPulse(): {0} : {1}'.format(self.__channel, self.__value))
-
         off = map_range(value, self.__valueRange[0], self.__valueRange[1],
                         self.__pulseRange[0], self.__pulseRange[1])
 
-        self.__pwm.set_pwm(self.__channel, 0, off)
+        print('sendPulse(): {0} : {1} : {2}'.format(self.__channel,
+                                                    value,
+                                                    off))
+        # self.__pwm.set_pwm(self.__channel, 0, off)
+        self.set_servo_pulse(off)
+
+    def set_servo_pulse(self, pulse):
+        pulse_length = 1000000    # 1,000,000 us per second
+        pulse_length //= 60       # 60 Hz
+        print('{0}us per period'.format(pulse_length))
+        pulse_length //= 4096     # 12 bits of resolution
+        print('{0}us per bit'.format(pulse_length))
+        pulse *= 1000
+        pulse //= pulse_length
+        print('pulse: {0}'.format(pulse))
+        self.__pwm.set_pwm(self.__channel, 0, pulse)
 
 
 class DonkeyController(object):
@@ -71,12 +84,12 @@ class DonkeyController(object):
 
         # cfg.STEERING_CHANNEL = 12
         # cfg.THROTTLE_CHANNEL = 13
-        self.__throtleController = PWMController(13,
-                                                 (-1.0, 1.0),
-                                                 (40000, 170000))
-        self.__steeringController = PWMController(12,
+        # self.__throtleController = PWMController(13,
+        #                                          (-1.0, 1.0),
+        #                                          (40000, 170000))
+        self.__steeringController = PWMController(1,
                                                   (-1.0, 1.0),
-                                                  (40000, 170000))
+                                                  (400, 1700))
 
     def onTwistReceived(self, twist):
 
@@ -93,7 +106,7 @@ class DonkeyController(object):
         linear = max(-1.0, min(1.0, linear))
         angular = max(-1.0, min(1.0, angular))
 
-        self.__throtleController.sendPulse(linear)
+        # self.__throtleController.sendPulse(linear)
         self.__steeringController.sendPulse(angular)
 
 

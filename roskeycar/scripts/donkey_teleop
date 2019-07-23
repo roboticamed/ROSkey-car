@@ -1,0 +1,31 @@
+#!/usr/bin/python
+
+import rospy
+from geometry_msgs.msg import Twist
+
+
+def main():
+
+    rospy.init_node('donkey_teleop')
+
+    rate = rospy.Rate(0.25)  # 0.25 Hz
+
+    publisher = rospy.Publisher('/donkey/twist',
+                                Twist,
+                                queue_size=1)
+
+    angle = -1.0
+
+    while not rospy.is_shutdown():
+
+        twist = Twist()
+        twist.angular.z = angle
+        publisher.publish(twist)
+
+        angle *= -1.0
+
+        rate.sleep()
+
+
+if __name__ == '__main__':
+    main()
