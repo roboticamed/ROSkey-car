@@ -6,6 +6,19 @@ from geometry_msgs.msg import Twist
 import Adafruit_PCA9685
 
 
+def map_range(x, X_min, X_max, Y_min, Y_max):
+    """
+    Linear mapping between two ranges of values
+    """
+    X_range = X_max - X_min
+    Y_range = Y_max - Y_min
+    XY_ratio = X_range / Y_range
+
+    y = ((x - X_min) / XY_ratio + Y_min) // 1
+
+    return int(y)
+
+
 class PWMController(object):
 
     def __init__(self, channel, valueRange, pulseRange):
@@ -25,6 +38,8 @@ class PWMController(object):
         """
 
         self.__channel = channel
+        self.__valueRange = valueRange
+        self.__pulseRange = pulseRange
 
         self.__pwm = Adafruit_PCA9685.PCA9685(address=0x40)
         self.__pwm.set_pwm_freq(60)  # Hz
@@ -39,20 +54,10 @@ class PWMController(object):
         """
         print('sendPulse(): {0} : {1}'.format(self.__channel, self.__value))
 
-        # TODO: do the mapping
-        # def map_range(x, X_min, X_max, Y_min, Y_max):
-        #     '''
-        #     Linear mapping between two ranges of values
-        #     '''
-        #     X_range = X_max - X_min
-        #     Y_range = Y_max - Y_min
-        #     XY_ratio = X_range/Y_range
+        off = map_range(value, self.__valueRange[0], self.__valueRange[1],
+                        self.__pulseRange[0], self.__pulseRange[1])
 
-        #     y = ((x-X_min) / XY_ratio + Y_min) // 1
-
-        #     return int(y)
-
-        self.__pwm.set_pwm(self.__channel, 0, 0)
+        self.__pwm.set_pwm(self.__channel, 0, off)
 
 
 class DonkeyController(object):
