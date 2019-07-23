@@ -165,6 +165,7 @@ install(PROGRAMS
   scripts/camera
   scripts/camera_viewer
   scripts/camera_processing
+  scripts/donkey_controller
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
