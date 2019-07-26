@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import cv2
+import numpy as np
 import rospy
 
 from sensor_msgs.msg import Image
@@ -11,20 +12,96 @@ class CameraProcessor(object):
 
     def __init__(self):
 
-        self.__imgSubscriber = rospy.Subscriber(
+        self.imgSubscriber = rospy.Subscriber(
             'roskeycar/camera/image_color/BGR/raw',
             Image,
             queue_size=1,
             callback=self.onImageReceived)
 
-        self.__bridge = CvBridge()
+        self.imgBinaryPublisher = rospy.Publisher('roskeycar/camera/image_binary/raw', Image, queue_size=1)
+
+        self.bridge = CvBridge()
+
+        # HSV color threshold for blue markers
+        self.colorMin = np.array([75, 130, 60], dtype=np.uint8)
+        self.colorMax = np.array([130, 255, 255], dtype=np.uint8)
+
+        # structuring element for morphology operations
+        self.morphKernel = np.array([[0, 1, 0],
+                                     [1, 1, 1],
+                                     [0, 1, 0]], dtype=np.uint8)
 
     def onImageReceived(self, msg):
+        """
+        Callback for receiving image messages
 
-        img = self.__bridge.imgmsg_to_cv2(msg)
-        print('{0} : {1}'.format(msg.header.seq, img.shape))
+        Parameters
+        ----------
+        msg : sensor_msgs.msg.Image.
+            Image message
+        """
 
-        # TODO: do processing here
+        BGR = self.bridge.imgmsg_to_cv2(msg)
+        print('{0} : {1}'.format(msg.header.seq, BGR.shape))
+
+        self.processImage(BGR)
+
+    def processImage(self, BGR):
+
+        # reduce the resolution of the image to half to allow for
+        # faster processing
+        BGR = cv2.resize(BGR, (320, 240))
+
+        # convert image to HSV
+        HSV = cv2.cvtColor(BGR, cv2.COLOR_BGR2HSV)
+
+        # color threshold
+        imgBinary = cv2.inRange(HSV, self.colorMin, self.colorMax)
+
+        # 2 iterations of image erosion
+        imgBinary = cv2.erode(imgBinary, self.morphKernel, iterations=2)
+        self.imgBinaryPublisher.publish(self.bridge.cv2_to_imgmsg(imgBinary))
+
+        blobs = self.detectBlobs(imgBinary)
+        print('processImage: len(blobs):', len(blobs))
+
+    def detectBlobs(self, imgBinary):
+        """
+        Detect blobs in a binary image by extracting contours
+
+        Parameters
+        ----------
+        imgBinary : ndarray.
+            Binary image
+
+        Returns
+        --------
+        blobs : list.
+            A list of blobs where each element is a 3 vector (x, y, S) where
+            x and y is the average position of the blob contour and S is the
+            number of points that form the contour
+        """
+
+        # extract the contours of the binary blobs
+        _, contours, _ = cv2.findContours(
+            imgBinary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+        # return blob list with the position and size of the blob
+        blobs = list()
+
+        # for each contour in the contour list
+        for c in contours:
+
+            # each contour c is stored as a vector of points of dimensions
+            # [N, 1, 2] where N is the number of points that make the contour
+            # with the last dimension of the (x, y) coordinates
+
+            # contour average position
+            avgX = np.sum(c[:, 0, 0]) / c.shape[0]
+            avgY = np.sum(c[:, 0, 1]) / c.shape[0]
+            blobs.append(np.array([avgX, avgY, c.shape[0]]))
+
+        return blobs
 
 
 def main():
