@@ -3,35 +3,85 @@
 import rospy
 from geometry_msgs.msg import Twist
 
+import termios
+import tty
+import sys
+import select
+
+
+terminalSettings = None
+
+keyBindings = {
+    'i': (0.1, 0.0),
+    'm': (-0.1, 0.0),
+    'j': (0.0, -0.1),
+    'l': (0.0, 0.1),
+}
+
+
+def readKey(timeout=0.1):
+
+    global terminalSettings
+
+    tty.setraw(sys.stdin.fileno())
+    rlist, _, _ = select.select([sys.stdin], [], [], timeout)
+    key = sys.stdin.read(1) if rlist else None
+
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminalSettings)
+
+    return key
+
 
 def main():
+    global terminalSettings
 
     rospy.init_node('donkey_teleop')
 
-    rate = rospy.Rate(0.25)  # 0.25 Hz
+    terminalSettings = termios.tcgetattr(sys.stdin)
 
     publisher = rospy.Publisher('/donkey/twist',
                                 Twist,
                                 queue_size=1)
 
-    multiplier = [-1.0, 0.0, 1.0]
+    try:
 
-    angle = -1.0
-    linear = -1.0
+        currentAngular = 0.0
+        currentLinear = 0.0
 
-    counter = 0
+        while not rospy.is_shutdown():
 
-    while not rospy.is_shutdown():
-        print(multiplier[counter])
+            key = readKey()
+
+            if key == 'q':
+                raise RuntimeError('quit pressed')
+
+            if key and key in keyBindings.keys():
+                currentLinear += keyBindings[key][0]
+                currentAngular += keyBindings[key][1]
+
+                # sanitize
+                currentAngular = max(-1.0, min(1.0, currentAngular))
+                currentLinear = max(-1.0, min(1.0, currentLinear))
+
+                # print(currentLinear, currentAngular)
+
+            twist = Twist()
+            twist.angular.z = currentAngular
+            twist.linear.y = currentLinear
+            publisher.publish(twist)
+
+    except Exception as e:
+        print(e)
+
+    finally:
+        print('shutting down')
 
         twist = Twist()
-        twist.angular.z = angle * multiplier[counter]
-        twist.linear.y = linear * multiplier[counter]
+        twist.angular.z = 0.0
+        twist.linear.y = 0.0
         publisher.publish(twist)
 
-        counter = 0 if counter % 3 == 2 else counter + 1
-
-        rate.sleep()
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminalSettings)
 
 
 if __name__ == '__main__':
