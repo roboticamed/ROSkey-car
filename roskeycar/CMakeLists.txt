@@ -167,6 +167,7 @@ install(PROGRAMS
   scripts/camera_processing
   scripts/donkey_controller
   scripts/donkey_teleop
+  scripts/line_following
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
