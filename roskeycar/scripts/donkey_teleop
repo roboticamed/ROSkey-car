@@ -14,15 +14,22 @@ def main():
                                 Twist,
                                 queue_size=1)
 
+    multiplier = [-1.0, 0.0, 1.0]
+
     angle = -1.0
+    linear = -1.0
+
+    counter = 0
 
     while not rospy.is_shutdown():
+        print(multiplier[counter])
 
         twist = Twist()
-        twist.angular.z = angle
+        twist.angular.z = angle * multiplier[counter]
+        twist.linear.y = linear * multiplier[counter]
         publisher.publish(twist)
 
-        angle *= -1.0
+        counter = 0 if counter % 3 == 2 else counter + 1
 
         rate.sleep()
 

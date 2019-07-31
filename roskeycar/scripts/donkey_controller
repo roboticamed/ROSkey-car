@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import rospy
+import time
 from geometry_msgs.msg import Twist
 
 import Adafruit_PCA9685
@@ -62,11 +63,12 @@ class PWMController(object):
         self.set_servo_pulse(off)
 
     def set_servo_pulse(self, pulse):
-        pulse_length = 1000000    # 1,000,000 us per second
-        pulse_length //= 60       # 60 Hz
-        print('{0}us per period'.format(pulse_length))
+
+        pulse_length = 1000000 // 60    # 1,000,000 us per second at 60 Hz
+        # pulse_length //= 60       # 60 Hz
+        # print('{0}us per period'.format(pulse_length))
         pulse_length //= 4096     # 12 bits of resolution
-        print('{0}us per bit'.format(pulse_length))
+        # print('{0}us per bit'.format(pulse_length))
         pulse *= 1000
         pulse //= pulse_length
         print('pulse: {0}'.format(pulse))
@@ -82,14 +84,12 @@ class DonkeyController(object):
                                              queue_size=1,
                                              callback=self.onTwistReceived)
 
-        # cfg.STEERING_CHANNEL = 12
-        # cfg.THROTTLE_CHANNEL = 13
-        # self.__throtleController = PWMController(13,
-        #                                          (-1.0, 1.0),
-        #                                          (40000, 170000))
+        self.__throtleController = PWMController(0,
+                                                 (-1.0, 1.0),
+                                                 (50000, 200000))
         self.__steeringController = PWMController(1,
                                                   (-1.0, 1.0),
-                                                  (400, 1700))
+                                                  (400, 2000))
 
     def onTwistReceived(self, twist):
 
@@ -106,8 +106,10 @@ class DonkeyController(object):
         linear = max(-1.0, min(1.0, linear))
         angular = max(-1.0, min(1.0, angular))
 
-        # self.__throtleController.sendPulse(linear)
+        self.__throtleController.sendPulse(linear)
         self.__steeringController.sendPulse(angular)
+
+        time.sleep(0.01)
 
 
 def main():
