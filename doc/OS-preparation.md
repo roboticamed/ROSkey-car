@@ -32,6 +32,7 @@ sudo raspi-config
 sudo apt install -y \
     tmux \
     ros-kinetic-image-view \
+    ros-kinetic-web-video-server \
     libgstreamer1.0-0 \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
