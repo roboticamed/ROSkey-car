@@ -51,10 +51,16 @@ sudo locale-gen en_AU.UTF-8
 sudo locale-gen en_US.UTF-8
 sudo update-locale LANG=en_US.UTF-8
 ```
+* If the last command not works finem, use instead:
+```
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+sudo dpkg-reconfigure locales
+```
 * Python 2 packages
 ```
 sudo pip2 install --upgrade pip
-sudo pip2 install --ugrade \
+sudo pip2 install --upgrade \
     jupyterlab \
     matplotlib \
     adafruit-pca9685
