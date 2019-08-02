@@ -1,8 +1,52 @@
 #!/usr/bin/python
 
+import cv2
+import numpy as np
+import rospy
+
+from sensor_msgs.msg import Image
+from geometry_msgs.msg import Twist
+from cv_bridge import CvBridge
+
+
+class LineFollower(object):
+
+    def __init__(self):
+
+        self.donkeyPublisher = rospy.Publisher(
+            '/donkey/twist', Twist, queue_size=1)
+
+        self.imgSubscriber = rospy.Subscriber(
+            'roskeycar/camera/image_color/BGR/raw',
+            Image,
+            queue_size=1,
+            callback=self.onImageReceived)
+
+        self.imagePublisher = rospy.Publisher(
+            'roskeycar/camera/line_following/raw', Image, queue_size=1)
+
+        self.bridge = CvBridge()
+
+    def onImageReceived(self, msg):
+        """
+        Callback for receiving image messages
+
+        Parameters
+        ----------
+        msg : sensor_msgs.msg.Image.
+            Image message
+        """
+
+        self.BGR = self.bridge.imgmsg_to_cv2(msg)
+
 
 def main():
-    pass
+
+    rospy.init_node('line_following')
+
+    follower = LineFollower()
+
+    rospy.spin()
 
 
 if __name__ == '__main__':
