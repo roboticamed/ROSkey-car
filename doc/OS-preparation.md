@@ -123,4 +123,9 @@ sudo systemctl enable jupyter.service
 ```
 * Restart the Raspi. Once the WiFi starts, type the URL of the jupyter server http://10.42.0.1:8888 on your browser. You should be prompted with the password dialog and after that with the Jupyter launcher screen.
 
+* Install i2c library:
+```
+sudo apt-get install libi2c-dev
+```
+
 **TODO: put screenshot here**
