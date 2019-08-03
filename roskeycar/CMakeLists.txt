@@ -168,6 +168,7 @@ install(PROGRAMS
   scripts/donkey_controller
   scripts/donkey_teleop
   scripts/line_following
+  scripts/motor_controller
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
