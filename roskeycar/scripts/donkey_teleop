@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 import rospy
 from geometry_msgs.msg import Twist
 
@@ -18,6 +20,21 @@ keyBindings = {
     'l': (0.0, -0.1),
 }
 
+message = """
+DonkeyCar Teleop
+----------------
+
+Use the keys below to control
+the car:
+
+    i
+j   k   l
+    m
+
+k : stop the car
+q : quit program
+"""
+
 
 def readKey(timeout=0.1):
 
@@ -34,8 +51,10 @@ def readKey(timeout=0.1):
 
 def main():
     global terminalSettings
+    global message
 
     rospy.init_node('donkey_teleop')
+    print(message)
 
     terminalSettings = termios.tcgetattr(sys.stdin)
 
@@ -65,9 +84,9 @@ def main():
 
                 # sanitize
                 currentAngular = max(-1.0, min(1.0, currentAngular))
-                currentLinear = max(-1.0, min(1.0, currentLinear))
+                currentLinear = max(0, min(1.0, currentLinear))
 
-                # print(currentLinear, currentAngular)
+            print('linear : {0:.02f}    angular : {1:.02f} \r'.format(currentLinear, currentAngular), end='')
 
             twist = Twist()
             twist.angular.z = currentAngular

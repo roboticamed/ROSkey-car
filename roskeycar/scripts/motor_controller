@@ -41,7 +41,7 @@ class DkLowLevelCtrl():
         self.actuators = {}
         self.actuators['throttle'] = ServoConvert(id=1, range=50)
         self.actuators['steering'] = ServoConvert(
-            id=2, range=120, direction=1)  # -- positive left
+            id=2, range=140, direction=1, center_value=310)  # -- positive left
         rospy.loginfo("> Actuators corrrectly initialized")
 
         self._servo_msg = ServoArray()

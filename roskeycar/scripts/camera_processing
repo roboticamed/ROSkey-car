@@ -162,7 +162,7 @@ class CameraProcessor(object):
             twistMsg.angular.z = r * (-1.0 if relX > 0 else 1.0)
 
             # TODO: change for a better control strategy
-            twistMsg.linear.y = 1.0
+            twistMsg.linear.y = 0.5
 
             print('{0}: angular: {1:.03f} linear: {2:.03f}'.format(bigBlob,
                 twistMsg.angular.z, twistMsg.linear.y))
