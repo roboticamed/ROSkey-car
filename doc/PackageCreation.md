@@ -25,5 +25,7 @@ rsync -av ubuntu@10.42.0.1:/home/ubuntu/catkin_ws/src/roskeycar_msgs .
 
 ```
 rsync -av roskeycar ubuntu@10.42.0.1:/home/ubuntu/catkin_ws/src/
+rsync -av ros-i2cpwmboard ubuntu@10.42.0.1:/home/ubuntu/catkin_ws/src/
+rsync -av roshello ubuntu@10.42.0.1:/home/ubuntu/catkin_ws/src/
 rsync -av roskeycar_msgs ubuntu@10.42.0.1:/home/ubuntu/catkin_ws/src
 ```
