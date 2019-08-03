@@ -23,7 +23,7 @@ class CameraProcessor(object):
             'roskeycar/camera/image_binary/raw', Image, queue_size=1)
 
         self.donkeyPublisher = rospy.Publisher(
-            '/donkey/twist', Twist, queue_size=1)
+            '/motor/twist', Twist, queue_size=1)
 
         self.bridge = CvBridge()
 
@@ -162,7 +162,7 @@ class CameraProcessor(object):
             twistMsg.angular.z = r * (-1.0 if relX > 0 else 1.0)
 
             # TODO: change for a better control strategy
-            twistMsg.linear.y = 0.5
+            twistMsg.linear.y = 0.0
 
             print('{0}: angular: {1:.03f} linear: {2:.03f}'.format(bigBlob,
                 twistMsg.angular.z, twistMsg.linear.y))
