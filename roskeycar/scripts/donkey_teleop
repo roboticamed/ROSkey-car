@@ -12,10 +12,10 @@ import select
 terminalSettings = None
 
 keyBindings = {
-    'i': (0.1, 0.0),
-    'm': (-0.1, 0.0),
-    'j': (0.0, -0.1),
-    'l': (0.0, 0.1),
+    'i': (0.02, 0.0),
+    'm': (-0.02, 0.0),
+    'j': (0.0, 0.1),
+    'l': (0.0, -0.1),
 }
 
 
@@ -39,7 +39,7 @@ def main():
 
     terminalSettings = termios.tcgetattr(sys.stdin)
 
-    publisher = rospy.Publisher('/donkey/twist',
+    publisher = rospy.Publisher('/motor/twist',
                                 Twist,
                                 queue_size=1)
 
@@ -55,7 +55,11 @@ def main():
             if key == 'q':
                 raise RuntimeError('quit pressed')
 
-            if key and key in keyBindings.keys():
+            if key == 'k':
+                currentLinear = 0.0
+                currentAngular = 0.0
+
+            elif key and key in keyBindings.keys():
                 currentLinear += keyBindings[key][0]
                 currentAngular += keyBindings[key][1]
 
